@@ -74,10 +74,11 @@ matrix* transpose(matrix* m) {
             *(data + (m->row * j + i)) = *(m->data + (m->col * i + j));
         }
     }
-    matrix* res = malloc(sizeof(matrix));
+    /*matrix* res = malloc(sizeof(matrix));
     res->row = m->col;
     res->col = m->row;
-    res->data = data;
+    res->data = data;*/
+    matrix* res = init(m->col, m->row, data);
     return res;
 }
 

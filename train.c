@@ -8,6 +8,7 @@
 #include <float.h>
 #include "matrix.h"
 #include "train.h"
+#include "img.h"
 
 double addScalar(double x, double y) {
     return x + y;
@@ -83,7 +84,7 @@ matrix* softmax(matrix* m) {
         *(data + i) = *(m->data + i);
     }
     matrix* mm = init(m->row, m->col, data);
-    matrix* mmm = sclalar(mm, (double) 1 / 1000000);
+    matrix* mmm = mm; //sclalar(mm, (double) 1 / 1);
     matrix* expm = expM(mmm);
     matrix* summ = sum(expm);
     return fnmBroadcast(expm, summ, &divScalar);
@@ -241,15 +242,37 @@ matrix** update(matrix** params, matrix** gradient, double alpha) {
     return res;
 }
 
-matrix** descent(matrix* x, matrix* y, double alpha, int iteration) {
+void test_training(matrix** params, matrix* x, matrix* y) {
+    matrix** layer = foward(x, params);
+    matrix* a2 = *(layer + 3);
+    matrix* pred = get_prediction(a2);
+    double  accuracy = get_accuracy(pred, y);
+    freem(*(layer + 0));
+    freem(*(layer + 1));
+    freem(*(layer + 2));
+    freem(*(layer + 3));
+    free(layer);
+    freem(pred);
+    printf("Accuracy: %.2f%%\n", accuracy * 100);
+
+}
+
+matrix** descent(matrix* x, matrix* y, double alpha, int iteration, matrix* test_trainx, matrix* test_trainy, matrix* y_no_hot) {
     matrix** params = initParams();
     for(int i = 0; i < iteration; i++) {
         matrix** layer = foward(x, params);
         if(i % 10 == 0) {
             matrix* a2 = *(layer + 3);
-            matrix* pred = get_prediction(a2);
+            /*matrix* pred = get_prediction(a2);
             double accuracy = get_accuracy(pred, y);
-            printf("Step: %d Accuracy: %.2f%%\n", i, accuracy * 100);
+            printf("Step: %d Accuracy: %.2f%%\n", i, accuracy * 100);*/
+            printf("Step %d\n", i);
+            test_training(params, x, y_no_hot);
+            test_training(params, test_trainx, test_trainy);
+
+        }
+        if(i == 1200) {
+            test_training(params, x, y_no_hot);
         }
         matrix** gradient = backward(x, y, params, layer);
         matrix** nparams = update(params, gradient, alpha);
@@ -274,4 +297,101 @@ matrix** descent(matrix* x, matrix* y, double alpha, int iteration) {
 
     }
     return params;
+}
+
+void save_params(matrix** params, char* path) {
+    matrix* w1 = *(params + 0);
+    matrix* b1 = *(params + 1);
+    matrix* w2 = *(params + 2);
+    matrix* b2 = *(params + 3);
+
+    FILE* file = fopen(path, "w");
+
+    fwrite(&w1->row, sizeof(int), 1, file);
+    fwrite(&w1->col, sizeof(int), 1, file);
+    fwrite(w1->data, sizeof(double), w1->col * w1->row, file);
+
+    fwrite(&b1->row, sizeof(int), 1, file);
+    fwrite(&b1->col, sizeof(int), 1, file);
+    fwrite(b1->data, sizeof(double), b1->col * b1->row, file);
+
+    fwrite(&w2->row, sizeof(int), 1, file);
+    fwrite(&w2->col, sizeof(int), 1, file);
+    fwrite(w2->data, sizeof(double), w2->col * w2->row, file);
+
+    fwrite(&b2->row, sizeof(int), 1, file);
+    fwrite(&b2->col, sizeof(int), 1, file);
+    fwrite(b2->data, sizeof(double), b2->col * b2->row, file);
+
+    fclose(file);
+
+}
+
+matrix** load_params(char* path) {
+
+    FILE* file = fopen(path, "r");
+
+    matrix* w1 = malloc(sizeof(matrix));
+    matrix* b1 = malloc(sizeof(matrix));
+    matrix* w2 = malloc(sizeof(matrix));
+    matrix* b2 = malloc(sizeof(matrix));
+
+    fread(&w1->row, sizeof(int), 1, file);
+    fread(&w1->col, sizeof(int), 1, file);
+    double* w1data = malloc(sizeof(double) * w1->row * w1->col);
+    fread(w1data, sizeof(double), w1->row * w1->col, file);
+    w1->data = w1data;
+
+    fread(&b1->row, sizeof(int), 1, file);
+    fread(&b1->col, sizeof(int), 1, file);
+    double* b1data = malloc(sizeof(double) * b1->row * b1->col);
+    fread(b1data, sizeof(double), b1->row * b1->col, file);
+    b1->data = b1data;
+
+    fread(&w2->row, sizeof(int), 1, file);
+    fread(&w2->col, sizeof(int), 1, file);
+    double* w2data = malloc(sizeof(double) * w2->row * w2->col);
+    fread(w2data, sizeof(double), w2->row * w2->col, file);
+    w2->data = w2data;
+
+    fread(&b2->row, sizeof(int), 1, file);
+    fread(&b2->col, sizeof(int), 1, file);
+    double* b2data = malloc(sizeof(double) * b2->row * b2->col);
+    fread(b2data, sizeof(double), b2->row * b2->col, file);
+    b2->data = b2data;
+
+    fclose(file);
+
+    matrix** res = malloc(sizeof(matrix*) * 4);
+    *(res + 0) = w1;
+    *(res + 1) = b1;
+    *(res + 2) = w2;
+    *(res + 3) = b2;
+    return res;
+
+}
+
+int predict(char* path, matrix** params) {
+    SDL_Surface** surface = paths_to_surface(&path, 1);
+    SDL_Surface** scaled = scale_surfaces(surface, 1);
+    to_blacks_and_whites(scaled, 1);
+    matrix** x = imgs_to_matrix(scaled, 1);
+    matrix** layer = foward(x, params);
+    matrix* a2 = *(layer+3);
+    int max = -1;
+    double maxval = -1;
+    for(int i = 0; i < 10; i++) {
+        if(*(a2->data + i) > maxval) {
+            max = i;
+            maxval = *(a2->data + i);
+
+        }
+    }
+    freem(*(layer + 0));
+    freem(*(layer + 1));
+    freem(*(layer + 2));
+    freem(*(layer + 3));
+    freem(*x);
+    return max;
+
 }
