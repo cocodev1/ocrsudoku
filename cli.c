@@ -57,8 +57,6 @@ int mainCli() {
 
         SDL_Surface* surface = paths_to_surface(path, 1);
         printf("AAA\n");
-        SDL_Surface* ssurface = scale_surfaces(surface, 1);
-        printf("AAA\n");
         matrix* x = imgs_to_matrix(surface, 1);
         printf("AAA\n");
         matrix** layer = foward(x, params);

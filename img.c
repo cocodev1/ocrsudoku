@@ -49,7 +49,7 @@ void to_blacks_and_whites(SDL_Surface* surfaces, size_t len) {
             Uint8 r, g, b, a;
             Uint32 pixel = ((Uint32*) surfaces->pixels)[j];
             SDL_GetRGBA(pixel, surfaces->format, &r, &g, &b, &a);
-            printf("%d %d %d\n", r, g, b);
+            printf("%d %d %d\n", pixel, g, b);
             Uint8 gray = (Uint8)(0.3 * r + 0.59 * g + 0.11 * b);
             Uint32 grayPixel = SDL_MapRGBA(surfaces->format, gray, gray, gray, a);
             ((Uint32*) surfaces->pixels)[j] = grayPixel;
@@ -68,6 +68,10 @@ matrix* imgs_to_matrix(SDL_Surface* surfaces, size_t len) {
         Uint8 r, g, b, a;
         SDL_GetRGBA(pixel, surfaces->format, &r, &g, &b, &a);
         *(data + j) = (double) r;
+	if((j % 28) == 0) {
+		printf("\n", j);
+	}
+	printf("%.0f%.0f%.0f", r, g, b);
     }
     matrix* res = init(28*28, 1, data);
 
