@@ -34,11 +34,14 @@ matrix** csvToMatrix(char* path) {
     FILE* file = fopen(path, "r");
 
 
-    char line[8192];
+    char line[32164];
 
+		    printf("AAA\n");
     fgets(line, 8192, file);
+	    printf("AAA\n");
     int nfield = getNumField(line);
 
+	    printf("AAA\n");
     int nline  = 0;
     while(fgets(line, 4096, file)) {
         nline++;
@@ -46,7 +49,9 @@ matrix** csvToMatrix(char* path) {
 
     file = fopen(path, "r");
     double *dataX = malloc(sizeof(double) * nline * (nfield - 1));
+	    printf("AAA\n");
     double *dataY = malloc(sizeof(double ) * nline);
+	    printf("AAA\n");
     fgets(line, 8192, file);
     int curr = 0;
     while(fgets(line, 4096, file)) {

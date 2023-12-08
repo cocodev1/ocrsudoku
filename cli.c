@@ -20,7 +20,7 @@ int mainCli() {
     int res;
     scanf("%d", &res);
     if(res == 1) {
-        matrix** dataset = csvToMatrix("small_train.csv");
+        matrix** dataset = csvToMatrix("smalltrain2.csv");
         matrix* imgx = *(dataset + 0);
         matrix* imgy = *(dataset + 1);
         imgx->row = 900;
@@ -69,14 +69,14 @@ int mainCli() {
 		*(data + i) = (double) r;
 	}
 	matrix* x = init(28*28, 1, data);
-        /*printf("AAA\n");
+	x = sclalar(x, (double) 1 / 255);
         matrix** layer = foward(x, params);
-        printf("AAA\n");
+	
         matrix* a2 = *(layer+3);
         for (int i = 0; i < 10; i++) {
             printf("%d:  %.2f%%\n", i, *(a2->data + i) * 100);
         }
-        return mainCli();*/
+        return mainCli();
 
     }
     else if(res == 3) {
@@ -91,6 +91,6 @@ int main() {
            "   / /   / ____/  / __ \\/ ____/ ___// ____/   | / / / /  / __ \\/ ____/  / | / / ____/ / / / __ \\/ __ \\/ | / / ____/ ___/\n"
            "  / /   / __/    / /_/ / __/  \\__ \\/ __/ / /| |/ / / /  / / / / __/    /  |/ / __/ / / / / /_/ / / / /  |/ / __/  \\__ \\ \n"
            " / /___/ /___   / _, _/ /___ ___/ / /___/ ___ / /_/ /  / /_/ / /___   / /|  / /___/ /_/ / _, _/ /_/ / /|  / /___ ___/ / \n"
-           "/_____/_____/  /_/ |_/_____//____/_____/_/  |_\\____/  /_____/_____/  /_/ |_/_____/\\____/_/ |_|\\____/_/ |_/_____//____/\n");
+           "/_____/_____/  /_/ |_/_____//____/_____/_/  |_\\____/  /_____/_____/  /_/ |_/_____/\\____/_/ |_|\\____/_/ |_/_____//____/\n\n");
     return mainCli();
 }
