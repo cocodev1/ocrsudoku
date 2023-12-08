@@ -47,7 +47,7 @@ int mainCli() {
         save_params(params, testpath);
         matrix** test_params = load_params(testpath);
 
-        printf("Test du modèle enregistrer\n");
+        printf("Test du modèle enregistré\n");
         test_training(test_params, imgx, imgy);
         test_training(test_params, imgtestx, imgtesty);
         return mainCli();
