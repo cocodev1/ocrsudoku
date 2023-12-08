@@ -8,7 +8,9 @@
 #include "img.h"
 
 int mainCli() {
-    char* testpath = "handwritten.model";
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)            
+		errx(EXIT_FAILURE, "%s", SDL_GetError());
+	char* testpath = "handwritten.model";
 
 
     printf("1) Entrainer le réseau\n");
@@ -54,18 +56,27 @@ int mainCli() {
         printf("renter un chemin vers une image à prédire:\n");
         scanf("%s", path);
         matrix** params = load_params(testpath);
-
-        SDL_Surface* surface = paths_to_surface(path, 1);
-        printf("AAA\n");
-        matrix* x = imgs_to_matrix(surface, 1);
-        printf("AAA\n");
+	SDL_Surface* s = IMG_Load(path);
+	SDL_Surface* ss = SDL_ConvertSurfaceFormat(s, SDL_PIXELFORMAT_RGB888 , 0);
+        Uint32* pixels = ss->pixels;
+ 	int len = ss->w * ss->h;
+ 	SDL_PixelFormat* format = ss->format;
+ 	SDL_LockSurface(ss);
+	double* data = malloc(sizeof(double) * 784);
+ 	for(int i = 0; i < len; i++) {
+		Uint8 r, g, b;
+		SDL_GetRGB(pixels[i], format, &r, &g, &b);
+		*(data + i) = (double) r;
+	}
+	matrix* x = init(28*28, 1, data);
+        /*printf("AAA\n");
         matrix** layer = foward(x, params);
         printf("AAA\n");
         matrix* a2 = *(layer+3);
         for (int i = 0; i < 10; i++) {
             printf("%d:  %.2f%%\n", i, *(a2->data + i) * 100);
         }
-        return mainCli();
+        return mainCli();*/
 
     }
     else if(res == 3) {
