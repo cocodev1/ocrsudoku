@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c3512023a4b9145c890d6da185b8bc7ee52080092954b39496092b558a5fa7bd
-size 239
+//
+// Created by simon on 10/31/2023.
+//
+
+#include "matrix.h"
+
+#ifndef NNXOR_TRAINXOR_H
+#define NNXOR_TRAINXOR_H
+matrix** trainXor(double alpha, double iteration);
+matrix** forwardXor(matrix* x, matrix** params);
+#endif //NNXOR_TRAINXOR_H
